@@ -1,0 +1,22 @@
+[package]
+name = "handoc"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+http-body-util = "0.1.2"
+hyper.features = ["http1", "server"]
+hyper.version = "1.5.0"
+hyper-util.features = ["tokio", "service"]
+hyper-util.version = "0.1.10"
+tokio.features = ["rt", "net"]
+tokio.version = "1.41.1"
+axum.version = "0.7.7"
+axum.default-features = false
+serde.version = "1.0.214"
+serde.features = ["derive"]
+flate2.version = "1.0.34"
+flate2.default-features = false
+flate2.features = ["zlib"]
+async-trait = "0.1.83"
+httpdate = "1.0.3"
