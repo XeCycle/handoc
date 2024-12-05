@@ -104,10 +104,10 @@ async fn render(
     if let Some(so) = so {
         let part = so.strip_prefix("man").ok_or(StatusCode::NOT_FOUND)?;
         let dst = format!("/{part}.html");
-        Ok((SetDate(date), Redirect::temporary(&dst)).into_response())
+        Ok((LastModified(date), Redirect::temporary(&dst)).into_response())
     } else {
         Ok((
-            SetDate(date),
+            LastModified(date),
             Html(bg(move || format_reply(&fp)).await.map_err(conv_ioe)?),
         )
             .into_response())
@@ -176,15 +176,15 @@ impl<S: Send + Sync> FromRequestParts<S> for IfChangedSince {
     }
 }
 
-struct SetDate(SystemTime);
+struct LastModified(SystemTime);
 
-impl IntoResponseParts for SetDate {
+impl IntoResponseParts for LastModified {
     type Error = StatusCode;
 
     fn into_response_parts(self, mut res: ResponseParts) -> Result<ResponseParts, Self::Error> {
         use axum::http::header;
         res.headers_mut().insert(
-            header::DATE,
+            header::LAST_MODIFIED,
             HttpDate::from(self.0)
                 .to_string()
                 .parse()
