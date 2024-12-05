@@ -57,23 +57,25 @@ struct ManPath {
 }
 
 async fn find(Path(name): Path<String>) -> Result<Response, StatusCode> {
-    if let Some((name, section)) = name.rsplit_once('.').or_else(|| {
-        Some((
-            &name[..],
-            ["1", "8", "6", "2", "3", "5", "7", "4", "9", "3p"]
-                .into_iter()
-                .find(|section| {
-                    std::fs::exists(format!("/usr/share/man/man{section}/{name}.{section}.gz"))
-                        .unwrap_or_default()
-                })?,
-        ))
-    }) {
-        return Ok(
-            Redirect::temporary(&format!("/{section}/{name}.{section}.html")).into_response(),
-        );
-    }
-
-    Err(StatusCode::NOT_FOUND)
+    name.rsplit_once('.')
+        .filter(|(_, section)| {
+            *section == "n" || section.starts_with(|c: char| c.is_ascii_digit())
+        })
+        .or_else(|| {
+            Some((
+                &name[..],
+                ["1", "8", "6", "2", "3", "5", "7", "4", "9", "3p"]
+                    .into_iter()
+                    .find(|section| {
+                        std::fs::exists(format!("/usr/share/man/man{section}/{name}.{section}.gz"))
+                            .unwrap_or_default()
+                    })?,
+            ))
+        })
+        .map(|(name, section)| {
+            Redirect::temporary(&format!("/{section}/{name}.{section}.html")).into_response()
+        })
+        .ok_or(StatusCode::NOT_FOUND)
 }
 
 async fn render(
