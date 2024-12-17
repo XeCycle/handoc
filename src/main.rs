@@ -58,9 +58,7 @@ struct ManPath {
 
 async fn find(Path(name): Path<String>) -> Result<Response, StatusCode> {
     name.rsplit_once('.')
-        .filter(|(_, section)| {
-            *section == "n" || section.starts_with(|c: char| c.is_ascii_digit())
-        })
+        .filter(|(_, section)| *section == "n" || section.starts_with(|c: char| c.is_ascii_digit()))
         .or_else(|| {
             Some((
                 &name[..],
