@@ -102,8 +102,12 @@ async fn render(
     .await
     .map_err(conv_ioe)?;
     if let Some(so) = so {
-        let part = so.strip_prefix("man").ok_or(StatusCode::NOT_FOUND)?;
-        let dst = format!("/{part}.html");
+        let dst = if so.contains('/') {
+            let part = so.strip_prefix("man").ok_or(StatusCode::NOT_FOUND)?;
+            format!("/{part}.html")
+        } else {
+            format!("/{so}")
+        };
         Ok((LastModified(date), Redirect::temporary(&dst)).into_response())
     } else {
         Ok((
